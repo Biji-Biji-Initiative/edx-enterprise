@@ -1397,6 +1397,15 @@ class EnterpriseCustomerUser(TimeStampedModel):
                 )
             )
 
+        elif enrolled_in_course and mode in audit_modes and course_enrollment.get('mode') in audit_modes:
+            # Attribution is separate from shared learning. Do not re-enroll, change mode,
+            # replay progress or create an order for this already-active free enrollment.
+            EnterpriseCourseEnrollment.objects.get_or_create(
+                enterprise_customer_user=self,
+                course_id=course_run_id,
+                defaults={'source': EnterpriseEnrollmentSource.get_source(source_slug)},
+            )
+
     def unenroll(self, course_run_id):
         """
         Unenroll a user from a course track.
